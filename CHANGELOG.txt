@@ -1,0 +1,172 @@
+# JS8Spotter, MIT License, Joe Lyman KF7MIX
+# You should have received a copy of the source and license with this application
+
+# Change Log (latest first)
+# Changelog for v1.18
+
+2026-01-29    v1.18     DB structure unchanged, DB updated not needed from 1.17
+                        Added click on status bar to clear all notification messages
+                        Added Export Simple Offline Maps data (W8JB, Jim)
+                        Added APRS WhatsAPP (Magnum, KJ5CCS)
+                        Added allow spaces at the end of search terms (AC0MZ, Nathan)
+                        Added handle unknown commstat status values (KN4AM, Stephen)
+                        Added ability to set TX speed for expect statements (compatible only with JS8Call-Improved v2.4.0 or later)
+                        Added right-click to paste in form fields (James, KF4LXS)
+                        Fixed small bug in expect, highlighting red when set to 99/inf
+                        Fixed small bug (depricated function) in highlight code
+                        Users manual with corrections (Richard, KC9ZFC; David KD4E)
+                        Updated Expect Import error statements to be more clear (David, KD4E)
+                        Updated MCForms Response Import to use tabs instead of spaces
+2025-08-21    v1.17     DB structure *changed*, DB updated REQUIRED
+                        Added error handling for profile database table error (KN4AM)
+                        Added better instructions on MCForms Responses import screen
+                        Added simple APRS-only messages (S51SG, Andrej)
+                        Added option to TX immediately when posting a form to Expect (N5DOM)
+                        Added rudimentary map zoom (multiple)
+                        Updated map tiles for better visibility of political borders
+                        Added norther and southern Africa to map system (KJ5CCS)
+                        Redesigned Expect system screens
+                        Added Auto TX schedule to Expect (multiple)
+                        Added components to set TX speed, but not supported by functional API at this time (2.3.1)
+			Added new F!107 form and updated quickstart docs (KN4AM)
+2025-04-25    v1.16     DB structure *changed*, DB updated REQUIRED
+                        Fixed scrollwheel binding bug in forms
+                        Fixed extra space bug in some form fill-outs
+                        Fixed SNR column sorting in map view
+                        Added SNR color option map view (Darrell, KI4RXJ)
+                        Corrected map sorting and options
+                        Re-organized MCForms menu (KN4AM)
+                        Added MCForms Primary/Most Used flagged forms (KN4AM)
+                        Only prompt for restart on settings changes that require a restart
+                        Added datecode encode/decode in tools menu
+                        Corrected bug in datecode, 11pm was getting cut off
+                        Added ability to sort profile entries
+                        Added auto-save last manual Expect target (KN4AM)
+2025-03-06    v1.15     Add copy button to manual expect send
+                        Added new forms feature, freeform (Ron K7RIE)
+                        Added ability to include text at the end of forms (Stephen, KF4AM)
+                        Fixed a small bug in form responses import
+                        Added ability to process MCForms stored as a msg on 3rd party station
+2025-02-06    v1.14b    DB structure unchanged, DB updated not needed from 1.13
+                        Corrected various small UI issues
+                        Added more time limits to highlight feature (MJ, KW3KW)
+                        Added clear filter button (MJ, KW3KW)
+                        Added alternate view modes for Matched Activity list (MJ, KW3KW)
+                        Added variable / user input dial frequency on visualize waterfall (Can't recall who asked for this!)
+                        Added raw format to text form response report
+                        Corrected bugs in form responses when associated forms aren't present in the forms folder (Bert, N0YJ)
+2025-01-31    v1.13b    DB structure was changed, DB update required
+                        Added sorting for "Search Terms" treeview, map treeview, response/statrep treeview (Jeff KC7HES)
+                        Added filter duplicates to form resp window (Ron K7RIE)
+                        Adjusted checks so that in future upgrades db update not required if table structure not modified
+                        Added comments column (Manuel N0DDK)
+                        Changed search terms add method
+                        Modified expect to reply to sender not group, when responding to item sent to group, (Scott N1ROG)
+                        Preserve allowed list and txlist when posting new form answers to expect (Ryan KC7HES)
+                        Added user defined setting for default allowed list (Paul KI6QDB)
+                        Corrected bug in time shortcode for MCForms (Stephen KN4AM)
+                        Additional documents added, and MCForms naming standardized (Stephen KN4AM)
+2024-11-25    v1.12b    Added error handling for broken forms (KG5VPF)
+                        Added preserve settings for disable sound and highlighs
+                        Changed APRS SMS phone input to allow phone or alias (K0RPG)
+                        Added ability to search/filter visualize waterfall by callsign
+2024-09-30    v1.11b    Fixed bug in expect_update (N0YJ)
+                        Removed 3 character MCForms descriptor limit (KE0VCD)
+                        Fixed crash when invalid forms are found (KE0VCD)
+                        Added a few basic CommStatOne capabilities, for those that don't want to (or can't) install CommStatOne/CommStatX (KE0VCD)
+                        Using simplesound for Windows, TKSnack for Linux. Both should be obtainable on those platforms
+                        Added basic database trim feature
+                        Small improvements and new code comments added
+2024-03-28    v1.10b    Added quickfilter for activity treeview
+                        Added "pause" menu feature for Expect
+                        Added ability to disable expect items by setting max replies to 0, updated dialog
+                        Added Expect blocklist
+                        Added basic database search, for those who don't want to download/install db tools
+                        Added 12h option in visualize waterfall
+                        Changed "TCP Active" to "waiting for data", which is more accurate
+                        Added ability to highlight search terms with activity in last n minutes
+                        Added settings warning check for database version mistmatch
+                        Added database migration tool with GUI
+                        Added notification sounds, set per profile
+2024-01-29    v1.09b    Added Indonesia and Australia maps (Tom VK5TOM)
+                        Added export in detail log view
+                        Added import/export in Expect
+2024-01-16    v1.08b	Fixed a bug in MCForms window scrolling canvas size
+                        Fixed a bug in forms import
+                        Re-enabled APRS SMS with new gateway (http://aprs.wiki/SMS/)
+                        Allow select multiple items in Form Responses, delete multiple items
+                        Fixed error loading form response when form template changed
+2023-10-24    v1.07b    Made 99=inifite in allowed expect responses
+                        Added ability to clear Sent To list in Expect
+                        Added ability to set default form response with * at start of answer text (as in "@Y *Yes")
+                        Fixed failure when form timestamp is incomplete
+                        Fixed timestamp encoding oversight
+                        Fixed bug crash with incorrect gateway URL
+                        Changed form response view to add decoded timestamps
+                        Added ability to include instructional text and headings (levels 1,2,3) in forms
+                        Added ability to view form responses in GUI similar to fill-out mode (select a response row and right-click)
+                        Fixed visualize waterfall display, math was off
+2023-10-14    v1.06b    Modified MCForms datecode for 2min resolution instead of 15min
+                        Fixed bug when older versions submit an MCForm with shorter datecode
+                        Fixed issue with detecting /P and other tactical calls
+                        Removed defunct APRSIS sms messaging
+                        Added ability to hide rx.activity and rx.directed in main window
+                        Added ability to import/add form responses
+                        Added APRSIS POTAGW function
+2023-03-24    v1.05b    Fixed bug with spaces in expect allowed list
+                        Renamed the "allowed" input in Expect to match the list view name
+                        Adjusted frame/grid to help with text cutoff on some systems
+                        Added warning on startup if callsign or grid aren't set
+                        Added lines to prevent expect from sending when callsign isn't set
+                        Added manual
+                        Setup github release (Dan KI6ESH)
+2023-03-07    v1.04b    Fixed bug in export saveas function
+                        Added missing comments to report output
+                        Added ability to hide RX.SPOT in view menu
+                        Added <return> bindings to some list views
+                        Added right-click copy activity info to clipboard
+                        Added freq,offset,speed to activity database, updated migration script & initdb
+                        Added simulated waterfall for visualization of band activity
+                        Added some auto database cleanup
+                        Added internet gateway for forms reporting, user configurable optional
+                        Improvements in activity detail info
+2023-02-23    v1.03b    Added status bar for incoming expect requests and form responses
+                        Improved the appearance of the double-click activity view
+                        Added ability to load a previously posted form answers from expect system into forms
+                        Added missing "Export All" in form responses
+                        Added copy/export buttons and right-click copy popup to form response pages
+                        Added notes & date to form files
+                        Fixed bug in short datecode generator
+2023-02-14    v1.02b    Fixed scrollbar display issues
+                        Fixed row coloring issues
+                        Fixed bug when search string was a number
+                        Fixed error when right-clicking inside export dialogs with nothing selected
+                        Corrected some window size issues, made more windows resizeable
+                        Re-arranged map lookup tables to match actual map layout
+                        Added manual send to expect
+                        Modified * handling in expect to allow groups+* as from
+                        Cleaned up code & comments a bit, reorganized many functions
+                        Cleaned up some methods around focus() for a little more consistency
+                        Added datetime to expect sent record
+                        Preserve expect sent record when updating expect entry
+                        Changed expect view to scrollable window
+                        Added MCForms subsystem (multiple choice forms) - Includes new database table
+2023-01-26    v1.01b    Added APRS commands to tools menu. Enabled ability to
+                        resize the main window
+2023-01-22    v0.99b    Cleaned up some bugs in the expect system, and
+                        some Windows-specific bugs in the maps and other areas
+2022-12-19    v0.97b    Added TCP settings and network check
+2022-12-15    v0.96b    Improved grid map. Added Europe; Added ability to
+                        remove items from grid map; Corrected several bugs
+2022-12-09    v0.95b    Added a simple offline maidenhead grid map, and
+                        fixed some button alignment in Linux
+2022-01-25    v0.93a    Fixed race condition in matching, and error handling,
+                        which were both causing the program to hang and not
+                        record matches
+2022-01-20    v0.92a    Switched from UDP to TCP
+2022-01-17    v0.91a    Updated initdb program, fixed theme items
+2022-01-14    v0.90a    Bug fix impacting background search
+2022-01-14    v0.89a    Added external theme, light and dark, bug fixes
+2022-01-13    v0.88a    Added import/export and multi-delete for search terms
+2022-01-12    v0.87a    Some new key bindings, save as dialog in export
+2022-01-11    v0.85a    First public release

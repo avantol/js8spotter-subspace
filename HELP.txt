@@ -1,0 +1,134 @@
+JS8Spotter Quick Help
+
+# Main Program
+## Main Window
+
+    * Create and select profiles to organize your search terms
+        - If "Background Scan" is checked, your profile search terms will scan at all times
+        - If "Background Scan" is unchecked, your profile search terms will only scan
+          if/when you are viewing that profile
+        - Sort profiles in the File menu
+
+    * On the left are your custom search terms
+        - Add or "import" search terms using the Add button
+        - Highlight and remove one or more search terms with the Remove button
+        - Export search terms as needed, to share or backup
+        - Sort by clicking column headers
+
+    * On the right you will see activity that matches your search terms
+        - View Last 100 irrespective of time, or view a timeframe irrespective of count
+        - Export or clear as needed
+        - Use the View menu to show/hide heartbeats and/or specific activity types
+        - Filter text to view only specific activity
+
+    * Double-click entries in the left or right tree to see details of that entry
+
+    * Filter Matched Activity
+	    - Enter text to filter by
+	    - Press enter or Apply, or wait for new activity to activate the filter
+	    - Press X, or rrase the filter or press <Escape> in the filter box to clear the filter
+
+## Settings
+
+    * The File>Settings menu will allow you to set your callsign and grid, as well as modify TCP
+      settings for the JS8Call API, and specify CommStat group as well as Default Expect Allow. You
+      may also alter the list of default/Primary forms as desired.
+
+# Tools Menu
+## Using the Simple Offline Map(s)
+
+    * Set your grid location in the File>Settings menu
+    * Double-click on a callsign to highlight its location on the map
+    * If your map is too crowded, lower the number of stations displayed
+    * Use the <Delete> key to remove stations from the list/map, or select and right-click
+    * Clear the map to remove all station location data from the database
+    * Click on the map to zoom in/out
+    * The map is updated only when loaded from the menu, or when an item is deleted
+    * Locations are approximate
+    * Sort by clicking column headers
+    * View by age or SNR
+
+## Visualize Waterfall
+
+    View a visualization of the waterfall for a given band over a given period of time.
+    This helps you determine which part of the waterfall might be most useful for you.
+    You station will gather data for the band(s) you use, and display on demand. Bands with
+    no stored data will appear blank.
+
+    You may select a band, or type in a custom dial frequency in Hz. If you have no stored data for
+    data frequency, nothing will show.
+
+    Use the search feature to locate specific callsigns on the waterfall. This may be useful if
+    you are part of a group and would like to see where other group members are using the waterfall.
+
+## Expect Subsystem
+
+    The Expect system looks for custom commands, and sends custom replies.
+
+    * Command Format: Sending station <A> might send the following to station <B>
+        - "<A>: <B> E? <expected command>" for example, "N6CYB: KF7MIX E? CMDS"
+        - If I have an Expect entry for the command "CMDS", the reply I have stored would be
+          auto-transmitted
+
+    * Add/Edit Fields:
+        - Expect Text: The text that you station is waiting to see, before sending the reply
+        - Reply Text: What your station will TX after encountering the expected text
+        - Reply-To List: A list of comma separated callsigns or @groups that can trigger a reply
+        - Max Replies: The number of times a reply can be triggered for this expected text
+        - Auto TX Schedule: Up to three times in 24hr HH:MM format, comma separated
+        - AUto TX Target: A callsign or @GROUP name that the auto TX will be directed at
+
+    * Use the Delete button or <Delete> key to remove entries from the list
+    * Use the Edit button or Double-click to view or edit an entry
+    * The Send Now button or Right-Click will let you TX an expect entry manually
+    * Import/Export, tab-delimited, view export contents for format of import
+    * MCForms filled-out forms are posted as expect entries
+    * The Expect system may be paused, and a blocklist is available
+
+## MCForms Subsystem
+
+    The MCForms system adds basic multiple choice forms functionality to JS8Call. Please
+    see the "forms/" folder and associated text files, along with the README.txt file included
+    with this program for details and information. Additional details are in the PDF manual.
+    Video training is also available. Custom forms may be created and used as needed.
+
+## APRS Commands
+
+    The built-in APRS commands will format the proper JS8Call string to transmit
+    an APRS command to a listening station. With these you may:
+
+    * Send an SMS (target phone/alias number must be registered with http://aprs.wiki/SMS/)
+    * Send an email
+    * Report your grid location to the APRS network
+    * Submit to the POTA Gateway
+
+## CommStat Compatible Features
+
+    Some users have had trouble installing CommStatX or CommStatOne on their systems, or do not
+    wish to use it for one reason or another. To fill those potential gaps, JS8Spotter includes
+    some basic CommStat compatible features, including:
+
+    * Generate and transmit a CommStat net checkin
+    * Generate and transmit a CommStat StatRep
+    * Forward a received CommStat StatRep to your group
+    * Gather and review CommStat StatReps as seen on the air
+
+    These features aren't meant to replace the CommStat software package. They are designed to
+    allow more individuals to participate in radio activities that are centered around that
+    software, even if they don't have it installed.
+
+## Database Functions
+
+    A very basic database search tool is built-in to JS8Spotter. Useful for quickly viewing data.
+    You may also use the Database Trim feature, to remove all entries older than 6 months; if you
+    have a large database file, this may speed things up.
+
+## Datecode Tool
+
+    You will see datecodes associated with MCForms. If you would like to encode or decode these
+    datecodes manually, you may do so in the Tools menu.
+
+## Notification Sounds
+
+    You may set profile activity notification sounds by editing a profile and
+    inserting a wingle WAV filename. This file should be located in the JS8Spotter folder. 

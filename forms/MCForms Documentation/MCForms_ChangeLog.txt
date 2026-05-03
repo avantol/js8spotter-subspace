@@ -1,0 +1,19 @@
+MCForms Change Log
+
+1/29/26 - KN4AM, KF7MIX
+F!108   Added
+F!300   Updated
+F!304   Updated
+
+08/21/25 - KN4AM
+F!106   Updated to add "see additional info" option
+F!107   Added
+
+03/06/25 - KN4AM
+F!500   Updated for new MCForms [xx] prompt option
+F!104   Added
+F!305   Added
+F!502   Renamed existing 502 to 505, Added new detailed weather report as 502
+
+01/31/2025 - KN4AM
+F!500   Added default (*) to the last 3 questions.

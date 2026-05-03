@@ -1,0 +1,16 @@
+Here are some helpful tips to get you running on a Mac (brought to you by Jet, W4PEW):
+
+1. Install Homebrew package manager, it's the easiest way to get the most common packages installed.
+2. Next, install python3 from brew like this: `brew install python`. It will automatically pick the latest version (Python3).
+3. Now, tell your system to use the brew version of python instead of the default so that you get the libtk libraries and things needed for the UI.
+    - Add this line to your .zshrc or .bashrc file `export PATH="$(brew --prefix)/opt/python@3.11/libexec/bin:$PATH"`
+4. Close the terminal and open it again or type `source ~/.zshrc` (or .bashrc if that's the terminal you prefer) to pick up the changes.
+5. You'll need a virtual environment to install the other packages needed. I prever `uv` as it's simplest. You can use the built in venv for Python if you prefer but you're on your own for how. Here's what to do with uv.
+    - `brew install uv`
+    - change to the js8spotter directory and type `uv venv` to initialize as a virtual environment.
+    - type `source .venv/bin/activate` to pull those setting into the terminal session
+6. Install the libraires you'll need in that virtual environment with:
+    - `uv pip install requests Pillow simpleaudio`
+
+Make sure JS8Call is running first then start JS8Spotter with:
+- `uv run js8spotter.py`

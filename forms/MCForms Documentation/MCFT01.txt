@@ -1,0 +1,105 @@
+Test Form Sitrep|F!T01
+
+# Test form, W7HLM's more resilient format, 2/7/24
+
+? Who is reporting?
+@0 Operator is self-reporting from QTH
+@1 Operator is reporting on behalf of own QTH unit leader, from QTH
+@2 Operator is reporting on behalf of own QTH unit leader, from QTH region
+@3 Operator is reporting on behalf of own QTH unit leader, from outside QTH region
+@4 Operator is reporting on behalf of regional leader, from QTH
+@5 Operator is reporting on behalf of regional leader, from QTH region
+@6 Operator is reporting on behalf of regional leader, from outside QTH region
+@7 Relay, retrieve details with "E? F!300A"
+
+? How may the managing leader be reached?
+@8 Store a JS8Call MSG on originating operator's station at any time
+@9 Store a JS8Call MSG on originating operator's station around 00:00 UTC
+@A Store a JS8Call MSG on originating operator's station around 02:00 UTC
+@B Store a JS8Call MSG on originating operator's station around 04:00 UTC
+@C Store a JS8Call MSG on originating operator's station around 06:00 UTC
+@D Store a JS8Call MSG on originating operator's station around 08:00 UTC
+@E Store a JS8Call MSG on originating operator's station around 10:00 UTC
+@F Store a JS8Call MSG on originating operator's station around 12:00 UTC
+@G Store a JS8Call MSG on originating operator's station around 14:00 UTC
+@H Store a JS8Call MSG on originating operator's station around 16:00 UTC
+@I Store a JS8Call MSG on originating operator's station around 18:00 UTC
+@J Store a JS8Call MSG on originating operator's station around 20:00 UTC
+@K Store a JS8Call MSG on originating operator's station around 22:00 UTC
+@L Phone or alternate means, retrieve details with "E? F!300B"
+
+? Is the originating operator on Winlink?
+@M Yes, you may attempt a Winlink email to the originating operator in place of a JS8Call message
+@N No, the originating operator is not equipped with a functional Winlink setup at this time
+
+? Type of situation:
+@O Tornado EF0-2
+@P Tornado EF3-5
+@Q Earthquake 0-3
+@R Earthquake 4-6
+@S Earthquake >6
+@T Hurricane 1-3
+@U Hurricane >3
+@V Wildfire
+@W Landslide
+@X Winter Weather
+@Y Tsunami
+@Z Volcano
+@0 Flood
+@1 Other event, Retrieve details with "E? F!300C"
+
+? Magnitutde/Severity of situation (1/minor through 6/catastrophic):
+@2 1 (limited impact/damage, no injury, no deaths)
+@3 2 (some impact/damage, some injury, no deaths)
+@4 3 (significant impact/damage, significant injuries, 0-3 deaths)
+@5 4 (major impact/damage, major injuries, 0-5 death)
+@6 5 (heavy impact/damage, heavy injuries, probable or confirmed deaths)
+@7 6 (catastrophic impact/damage, many heavy injuries, confirmed deaths)
+
+? Affected Area where is this occuring? Choose the most precise answer that is accurate:
+@8 In operator's QTH direct local area
+@9 In operator's QTH region
+@A In operator's QTH state
+@B In operator's QTH area
+@C Outside operators QTH area
+@D Retrieve location (maidenhead grid, coords, etc) with "E? F!300D"
+
+? Number of unit members or representatives injured, missing, or dead:
+@E No members or representatives missing, injured, or dead
+@F Retrieve counts (injured/missing/dead) with "E? F!300E"
+
+? Report on damage to unit member homes in Affected Area (choose the most severe option that is accurate):
+@G No known damage to member homes to report
+@H 1-5 member homes damaged, but safe
+@I 6-10 member homes damaged, but safe
+@J >10 member homes damaged, but safe
+@K 1-5 member homes damaged, UNSAFE to use
+@L 6-10 member homes damaged, UNSAFE to use
+@M >10 member homes damaged, UNSAFE to use
+
+? Report on damage to unit property in Affected Area:
+@N No known damage to unit property to report
+@O 1-5 unit properties damaged, but safe
+@P 6-10 unit properties damaged, but safe
+@Q >10 unit properties damaged, but safe
+@R 1-5 unit properties damaged, UNSAFE to use
+@S 6-10 unit properties damaged, UNSAFE to use
+@T >10 unit properties damaged, UNSAFE to use
+@U Specific damaged property details, retrieve with "E? F!300F"
+
+? Report on damage to surrounding infrastructure in Affected Area:
+@V No known damage to surrounding infrastructure to report
+@W At least 1 impacted: Electricity, Water, Gas, Roads, Phones, Emergency Services
+@X At least 2 impacted: Electricity, Water, Gas, Roads, Phones, Emergency Services
+@Y All services impacted: Electricity, Water, Gas, Roads, Phones, Emergency Services
+
+? Actions being taken to help those in distress:
+@Z Local leaders are in communication, ERC is established, comms are in place
+@0 Local leaders are in communication, ERC is being organized, no comms
+@1 Local leaders are not yet organized, but response has started
+@2 Response has not started
+
+? Needed assistance that is unavailable locally:
+@3 No external assistance is needed at this time
+@4 Specific needs, retrieve with "E? F!300G"
+

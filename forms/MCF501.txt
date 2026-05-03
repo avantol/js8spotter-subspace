@@ -1,0 +1,176 @@
+Basic Weather Report|F!501
+
+# Form published 01/17/2025. See SitRepNet.com for details and supporting docs for this form. KN4AM
+# Revised 03/07/2025
+
+! Weather Report
+
+[ST] State (2-letter code):
+[GR] Maidenhead Grid Square:
+. 
+
+? Observation time - Local time
+@0 *Unavailable
+@1 06:00 - 08:00
+@2 08:00 - 10:00
+@3 10:00 - 12:00
+@4 12:00 - 14:00
+@5 14:00 - 16:00
+@6 16:00 - 18:00
+@7 18:00 - 20:00
+
+? General current weather
+@0 *Unavailable
+@1 Sunny
+@2 Partly Cloudy
+@3 Cloudy
+@4 Light Rain
+@5 Moderate Rain
+@6 Heavy Rain
+@7 Snow
+@8 Sleet or Ice
+@9 Thunderstorms
+
+? Cloud Coverage
+@0 *Unavailable
+@1 Few < 10%
+@2 Isolated 10 - 25%
+@3 Scattered 25 - 50%
+@4 Broken 50 - 90%
+@5 Overcast 90 - 100%
+
+? Precipitation in previous 24 hours, in tenths of an inch
+@0 *Unavailable
+@X Trace
+@1 0.00 - 0.20
+@2 0.21 - 0.40
+@3 0.41 - 0.60
+@4 0.61 - 0.80
+@5 0.81 - 1.00
+@6 > 1.00
+
+? High Temperature F° in the past 24 hours
+@0 *Unavailable
+@1 Below 0
+@2 0 - 5
+@3 6 - 10
+@4 11 - 15
+@5 16 - 20
+@6 21 - 25
+@7 26 - 30
+@8 31 - 35
+@9 36 - 40
+@A 41 - 45
+@B 46 - 50
+@C 51 - 55
+@D 56 - 60
+@E 61 - 65
+@F 66 - 70
+@G 71 - 75
+@H 76 - 80
+@I 81 - 85
+@J 86 - 90
+@K 91 - 95
+@L 96 - 100
+@M 101 - 105
+@N 106 - 110
+
+? Low Temperature F° in the past 24 hours
+@0 *Unavailable
+@1 Below 0
+@2 0 - 5
+@3 6 - 10
+@4 11 - 15
+@5 16 - 20
+@6 21 - 25
+@7 26 - 30
+@8 31 - 35
+@9 36 - 40
+@A 41 - 45
+@B 46 - 50
+@C 51 - 55
+@D 56 - 60
+@E 61 - 65
+@F 66 - 70
+@G 71 - 75
+@H 76 - 80
+@I 81 - 85
+@J 86 - 90
+@K 91 - 95
+@L 96 - 100
+
+? Barometric Pressure (Millibars)
+@0 *Unavailable
+@1 960
+@2 962
+@3 964
+@4 966
+@5 968
+@6 970
+@7 972
+@8 974
+@9 976
+@0 978
+@A 980
+@B 982
+@C 984
+@D 986
+@E 988
+@F 990
+@G 992
+@H 994
+@I 996
+@J 998
+@K 1000
+@L 1002
+@M 1004
+@N 1006
+@O 1008
+@P 1010
+@Q 1012
+@R 1014
+@S 1016
+@T 1018
+@U 1020
+@V 1022
+@W 1024
+@X 1026
+@Y 1028
+@Z 1030
+
+? Barometric Pressure trend
+@0 *Unavailable
+@1 Rising rapidly
+@2 Rising slowly
+@3 Steady
+@4 Falling slowly
+@5 Falling rapidly
+
+? Wind Direction
+@0 *Unavailable
+@1 North
+@2 Northeast
+@3 East
+@4 Southeast
+@5 South
+@6 Southwest
+@7 West
+@8 Northwest
+@9 Variable
+
+? Wind Speed
+@0 *Unavailable
+@1 Calm / 0 mph
+@2 Light Air / 1 to 3 mph
+@3 Light Breeze / 4 to 7 mph
+@4 Gentle Breeze / 8 to 12 mph
+@5 Moderate Breeze / 13 to 18 mph
+@6 Fresh Breeze / 19 to 24 mph
+@7 Strong Breeze / 25 to 31 mph
+@8 Near Gale / 32 to 38 mph
+@9 Gale / 39 to 46 mph
+@A Strong Gale / 47 to 54 mph
+@B Whole Gale / 55 to 63 mph
+@C Storm Force / 64 to 75 mph
+@D Hurricane Force / over 75 mph
+

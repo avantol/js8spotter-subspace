@@ -1,0 +1,10 @@
+Please download the JS8Spotter DB Upgrade Tool to migrate an old database file to work with the
+latest version of Spotter. The tool is available on KF7MIX.com.
+
+(As of v1.14, database upgrade requirements will be listed here, latest first)
+
+v1.17 -> v1.18      No database upgrade needed
+v1.16 -> v1.17      DATABASE UPDATE REQUIRED
+v1.15 -> v1.16      DATABASE UPDATE REQUIRED
+v1.14 -> v1.15      No database upgrade needed
+v1.13 -> v1.14      No database upgrade needed

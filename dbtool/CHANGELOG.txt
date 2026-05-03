@@ -1,0 +1,8 @@
+# JS8Spotter DB Upgrade Tool, MIT License, Joe Lyman KF7MIX
+# You should have received a copy of the source and license with this application
+
+# Change Log (latest first)
+2024-08-04    v1.17     Added three new columns to the Expect table
+                        for Auto TX feature and hopefully a future Speed feature
+2024-04-23    v1.16     Added sort column to Profile table
+2024-11-25    v1.12b    Moved outside main JS8Spotter application
