@@ -81,10 +81,14 @@ jobs:
           "INSTALLER_PATH=$($installer.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Attach installer to release
+        # Intentionally NOT using --clobber: if an installer asset with the same
+        # name already exists on the release, this step fails loudly rather than
+        # silently replacing it. To re-run the workflow after a successful build,
+        # delete the prior installer asset from the release UI first.
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ steps.tag.outputs.tag }}" "$env:INSTALLER_PATH" --clobber
+        run: gh release upload "${{ steps.tag.outputs.tag }}" "$env:INSTALLER_PATH"
 
       - name: Upload installer as workflow artifact
         uses: actions/upload-artifact@v4
