@@ -11,12 +11,14 @@
 ;
 ; Output: js8spotter-subspace-<version>-setup.exe in the current directory.
 
+; SourceDir must be supplied via /DSourceDir=... when invoking iscc -- there is
+; no version-stable default (the deployment folder name embeds the version).
 #ifndef SourceDir
-  #define SourceDir "..\..\js8spotter-300_win10"
+  #error "Pass the deployment folder via /DSourceDir=<path-to-js8spotter-3XX_win10>."
 #endif
 
 #define MyAppName        "JS8Spotter-Subspace"
-#define MyAppVersion     "3.0.1"
+#define MyAppVersion     "3.0.2"
 #define MyAppPublisher   "Andy van Tol WM8Q"
 #define MyAppURL         "https://github.com/avantol/js8spotter-subspace"
 #define MyAppExeName     "js8spotter.exe"
