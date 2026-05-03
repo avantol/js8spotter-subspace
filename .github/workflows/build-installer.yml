@@ -1,0 +1,94 @@
+name: Build Inno Setup Installer
+
+# Builds the Windows installer (Inno Setup) and attaches it to the release.
+#
+# Trigger model:
+#   1. Cut a release manually:
+#       a) Build js8spotter-300_win10.zip locally (Linux pipeline: see project notes)
+#       b) Create a GitHub Release with tag v3.0.0 (or whatever)
+#       c) Attach js8spotter-300_win10.zip to the release
+#       d) Publish -> this workflow runs automatically
+#   2. Re-run on demand for an existing release: use the "Run workflow" button
+#      on the Actions tab and provide the release tag.
+#
+# The workflow grabs the deployment zip already attached to the release, runs
+# Inno Setup against installer/js8spotter-subspace.iss, and uploads the
+# resulting js8spotter-subspace-<ver>-setup.exe back onto the same release.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing release tag (e.g. v3.0.0) to attach the installer to'
+        required: true
+        type: string
+
+permissions:
+  contents: write   # required for `gh release upload`
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine release tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download deployment zip from release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download "${{ steps.tag.outputs.tag }}" --pattern "js8spotter-*_win10.zip" --dir .
+          $zip = Get-ChildItem -Filter "js8spotter-*_win10.zip" | Select-Object -First 1
+          if (-not $zip) {
+            throw "Release ${{ steps.tag.outputs.tag }} has no js8spotter-*_win10.zip asset. Attach the deployment zip to the release before publishing."
+          }
+          "DEPLOY_ZIP=$($zip.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Extract deployment zip
+        shell: pwsh
+        run: |
+          Expand-Archive -LiteralPath $env:DEPLOY_ZIP -DestinationPath .
+          $folder = Get-ChildItem -Directory -Filter "js8spotter-*_win10" | Select-Object -First 1
+          if (-not $folder) { throw "Extracted folder js8spotter-*_win10 not found" }
+          "DEPLOY_DIR=$($folder.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install -y innosetup --no-progress
+
+      - name: Build installer with Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" }
+          & $iscc /DSourceDir="$env:DEPLOY_DIR" installer\js8spotter-subspace.iss
+          if ($LASTEXITCODE -ne 0) { throw "iscc failed with exit code $LASTEXITCODE" }
+          $installer = Get-ChildItem -Path installer -Filter "js8spotter-subspace-*-setup.exe" | Select-Object -First 1
+          if (-not $installer) { throw "Installer .exe not found after iscc" }
+          "INSTALLER_PATH=$($installer.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Attach installer to release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.tag.outputs.tag }}" "$env:INSTALLER_PATH" --clobber
+
+      - name: Upload installer as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: js8spotter-subspace-installer
+          path: installer/js8spotter-subspace-*-setup.exe
+          if-no-files-found: error
