@@ -38,7 +38,7 @@
 #
 # Modifications Copyright 2026 Andy van Tol WM8Q -- MIT License
 #
-# This fork (js8spotter-subspace, version 3.0.0) is published under the same
-# MIT License terms as the upstream JS8Spotter. Modifications include a
-# "Subspace" mode-speed (TCP API code 16) and a "Default" option in the
-# TX Speed dropdown that omits MODE.SET_SPEED from the API call.
+# This fork (js8spotter-subspace) is published under the same MIT License
+# terms as the upstream JS8Spotter. Modifications include a "Subspace"
+# mode-speed (TCP API code 16) and a "Current" option in the TX Speed
+# dropdown that omits MODE.SET_SPEED from the API call.
