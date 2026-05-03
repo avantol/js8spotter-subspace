@@ -35,25 +35,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Determine release tag
+      - name: Determine release tag and compressed version
         id: tag
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+            tag="${{ github.event.release.tag_name }}"
           else
-            echo "tag=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+            tag="${{ github.event.inputs.release_tag }}"
           fi
+          # Strip leading 'v' and dots: v3.0.1 -> 301
+          compressed=$(echo "$tag" | sed -e 's/^v//' -e 's/\.//g')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "compressed=$compressed" >> "$GITHUB_OUTPUT"
 
       - name: Download deployment zip from release
+        # Match the version-specific filename (e.g. v3.0.1 -> js8spotter-301_win10.zip)
+        # so a release that holds multiple historical zips never picks the wrong one.
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release download "${{ steps.tag.outputs.tag }}" --pattern "js8spotter-*_win10.zip" --dir .
-          $zip = Get-ChildItem -Filter "js8spotter-*_win10.zip" | Select-Object -First 1
+          $zipName = "js8spotter-${{ steps.tag.outputs.compressed }}_win10.zip"
+          gh release download "${{ steps.tag.outputs.tag }}" --pattern $zipName --dir .
+          $zip = Get-ChildItem -Filter $zipName | Select-Object -First 1
           if (-not $zip) {
-            throw "Release ${{ steps.tag.outputs.tag }} has no js8spotter-*_win10.zip asset. Attach the deployment zip to the release before publishing."
+            throw "Release ${{ steps.tag.outputs.tag }} has no $zipName asset. Attach the deployment zip to the release before publishing."
           }
           "DEPLOY_ZIP=$($zip.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
