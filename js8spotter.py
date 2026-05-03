@@ -385,8 +385,8 @@ class TCP_RX(Thread):
 
                                             # API _SPEED setting from expect, store old setting, and set new JS8Call TX speed/mode with API call
                                             # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=turbo, 4=slow, 16=subspace
-                                            # "Default" / None means leave JS8Call's current speed alone (don't send SET_SPEED)
-                                            if ex_exists[6] not in (None, "Default"):
+                                            # "Current" / None means leave JS8Call's current speed alone (don't send SET_SPEED)
+                                            if ex_exists[6] not in (None, "Current"):
                                                 old_speed = reported_speed
                                                 new_speed = 0
                                                 if ex_exists[6]=="Normal":   new_speed=0
@@ -2967,7 +2967,7 @@ class App(tk.Tk):
         self.top2.entry_txmax = ttk.Entry(el, width = '8')
         self.top2.entry_txmax.grid(row=3, column=1, sticky='NW', padx=(8,0), pady=(8,0))
 
-        speedopts = ["Default", "Slow", "Normal", "Fast", "Turbo", "Subspace"]
+        speedopts = ["Current", "Slow", "Normal", "Fast", "Turbo", "Subspace"]
         label_speed = ttk.Label(el, text = "TX Speed:")
         label_speed.grid(row = 4, column = 0, sticky=W, padx=(8,0), pady=(8,0))
         self.top2.entry_speed = ttk.Combobox(el, values=speedopts, state='readonly', width='16')
@@ -3027,7 +3027,7 @@ class App(tk.Tk):
             if record[6]!=None:
                 self.top2.entry_speed.set(record[6])
             else:
-                self.top2.entry_speed.set("Default")
+                self.top2.entry_speed.set("Current")
 
             if record[7]!=None:
                 self.top2.entry_autotx.delete(0,END)
@@ -3068,8 +3068,8 @@ class App(tk.Tk):
         new_allowed = new_allowed.replace(" ", "")
         new_txmax = self.top2.entry_txmax.get().upper()
         new_txspeed = self.top2.entry_speed.get()
-        # "Default" means leave JS8Call's current TX speed untouched -- store NULL so downstream skips MODE.SET_SPEED
-        if new_txspeed == "Default": new_txspeed = None
+        # "Current" means leave JS8Call's current TX speed untouched -- store NULL so downstream skips MODE.SET_SPEED
+        if new_txspeed == "Current": new_txspeed = None
         new_autotx = self.top2.entry_autotx.get()
         new_atx_target = self.top2.entry_atx_target.get()
 
@@ -3195,7 +3195,7 @@ class App(tk.Tk):
         self.tx_cmd = ttk.Entry(self.txexptop)
         self.tx_cmd.grid(row = 2, column = 0, columnspan=2, stick='NSEW', padx=(10,10), pady=(20,0))
 
-        if record[6] not in (None, "Default"):
+        if record[6] not in (None, "Current"):
             self.tx_speed=record[6]
         else:
             self.tx_speed=None
@@ -5461,8 +5461,8 @@ class App(tk.Tk):
                     atx_speed = atx_expect[0][6]
 
                     # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=turbo, 4=slow, 16=subspace
-                    # "Default" / None means leave JS8Call's current speed alone (don't send SET_SPEED)
-                    if atx_speed not in (None, "Default"):
+                    # "Current" / None means leave JS8Call's current speed alone (don't send SET_SPEED)
+                    if atx_speed not in (None, "Current"):
                         old_speed = reported_speed
                         new_speed = 0
 
