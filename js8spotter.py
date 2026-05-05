@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# JS8Spotter v3.0.5 (050326). Visit https://kf7mix.com/js8spotter.html for information
+# JS8Spotter v3.0.6 (050326). Visit https://kf7mix.com/js8spotter.html for information
 # Special thanks to KE0DHO, KF0HHR, N0GES, N6CYB, KQ4DRG, NK8O, N0YJ, KI6ESH, N4FWD, KQ4HQD, KE0VCD, KN4AM, and everyone else who has contributed (see changelogs for more info)
 #
 # MIT License, Copyright 2026 Joseph D Lyman KF7MIX -- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
@@ -44,7 +44,7 @@ except ImportError:
 ### Globals
 swname = "JS8Spotter"
 fromtext = "de KF7MIX"
-displayversion = "3.0.5" # User-facing release version (window title, About, error messages)
+displayversion = "3.0.6" # User-facing release version (window title, About, error messages)
 swversion = "1.18"       # Internal DB-compatibility version (only used by the DB version check)
 dbminver = "1.17"        # Oldest DB version still accepted without warning
 
@@ -2490,15 +2490,15 @@ class App(tk.Tk):
                 if record[5]=="2": # turbo mode
                     w=70
                     h=11
-                    sy=126
+                    sy=145
                 if record[5]=="4": # slow mode
                     w=11
                     h=78
-                    sy=159
-                if record[5]=="16": # subspace mode: 150Hz bandwidth, 3-sec frame; lane drawn below Slow (PNG canvas extended to 256px)
+                    sy=162
+                if record[5]=="16": # subspace mode: 150Hz bandwidth; lane sits between Turbo and Slow on the waterfall PNG
                     w=66
-                    h=6
-                    sy=224
+                    h=8
+                    sy=192
 
                 if i==1: scolor="#FF0000"
                 if i==2: scolor="#D51125"
