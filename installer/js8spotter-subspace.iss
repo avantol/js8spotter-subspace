@@ -18,7 +18,7 @@
 #endif
 
 #define MyAppName        "JS8Spotter-Subspace"
-#define MyAppVersion     "3.0.7"
+#define MyAppVersion     "3.0.8"
 #define MyAppPublisher   "Andy van Tol WM8Q"
 #define MyAppURL         "https://github.com/avantol/js8spotter-subspace"
 #define MyAppExeName     "js8spotter.exe"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# JS8Spotter v3.0.7 (053126). Visit https://kf7mix.com/js8spotter.html for information
+# JS8Spotter v3.0.8 (053126). Visit https://kf7mix.com/js8spotter.html for information
 # Special thanks to KE0DHO, KF0HHR, N0GES, N6CYB, KQ4DRG, NK8O, N0YJ, KI6ESH, N4FWD, KQ4HQD, KE0VCD, KN4AM, and everyone else who has contributed (see changelogs for more info)
 #
 # MIT License, Copyright 2026 Joseph D Lyman KF7MIX -- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
@@ -44,9 +44,9 @@ except ImportError:
 ### Globals
 swname = "JS8Spotter"
 fromtext = "de KF7MIX"
-displayversion = "3.0.7" # User-facing release version (window title, About, error messages)
+displayversion = "3.0.8" # User-facing release version (window title, About, error messages)
 swversion = "1.19"       # Internal DB-compatibility version (only used by the DB version check)
-dbminver = "1.18"        # Oldest DB version still accepted without warning
+dbminver = "1.17"        # Oldest DB version still accepted without warning (matches upstream v1.19)
 
 dbfile = 'js8spotter.db'
 conn = sqlite3.connect(dbfile)
@@ -550,12 +550,12 @@ class App(tk.Tk):
         # check db version against program version
         dbver = next((item for item in dbsettings if 'dbver' in item),None)
         if dbver is None:
-            dbversion = "older than "+displayversion
+            dbversion = "older than "+swversion
         else:
             dbversion = str(dbver[2])
 
         if dbversion != swversion and dbversion != dbminver:
-            messagebox.showinfo("Database Error","The database you are using is version "+dbversion+" and the program version is "+displayversion+". This may cause errors, please run the database tool to upgrade your database.")
+            messagebox.showinfo("Database Compatibility","Your database (version "+dbversion+") is not compatible with JS8Spotter-Subspace v"+displayversion+", which expects database version "+swversion+" (or "+dbminver+"). Please run the database tool to upgrade your database.")
 
         # check if sound module was loaded
         if nosound == 1:
