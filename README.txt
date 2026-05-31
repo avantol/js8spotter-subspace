@@ -1,13 +1,13 @@
 # JS8Spotter MIT License, Joe Lyman KF7MIX
 # You should have received a copy of the source and license with the program
-# Special thanks to KE0DHO, KF0HHR, KQ4DRG, N4FWD, and N0GES, for help in
+# Special thanks to KE0DHO, KF0HHR, KQ4DRG, N4FWD, and N0GES, for help in early
 # development. Additional thanks to the operators mentioned in the changelog
 
 # Overview
 
 A JS8Call API mechanism to track activity containing specific search
 terms, including callsigns or other activity. Matches on RX.ACTIVITY,
-RX.DIRECTED, and RX.SPOT only. Tested with v2.2.0 through v2.3.1
+RX.DIRECTED, and RX.SPOT only. Tested with v2.2.0 through v3.0.2
 
 # Installation
 
@@ -189,6 +189,16 @@ see, along with a response that your station will send automatically if the
 expected text is found. All expect commands are prefixed with "E?". You may
 specify which stations or groups may trigger a response, and you may specify
 how many times your station will respond to a single expect.
+
+In order to automatically transmit from Expect, the following MUST be true:
+
+* You must DISABLE/UNCHECK the "Allow sending standard messages without callsign" option in 
+  JS8Call settings "General>Behavior" tab, or "E?" requests will not function.
+* Autoreply must be enabled in JS8Call in order for JS8Spotter to cause JS8Call to transmit.
+* You must have no station selected in your JS8Call Call Activity Pane
+* TX must be enabled
+* Your outgoing message box must be empty (gray text "TYPE YOUR OUTGOING MESSAGES HERE"
+
 
 See the in-program help for more details.
 

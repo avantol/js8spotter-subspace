@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# JS8Spotter v3.0.6 (050326). Visit https://kf7mix.com/js8spotter.html for information
+# JS8Spotter v3.0.7 (053126). Visit https://kf7mix.com/js8spotter.html for information
 # Special thanks to KE0DHO, KF0HHR, N0GES, N6CYB, KQ4DRG, NK8O, N0YJ, KI6ESH, N4FWD, KQ4HQD, KE0VCD, KN4AM, and everyone else who has contributed (see changelogs for more info)
 #
 # MIT License, Copyright 2026 Joseph D Lyman KF7MIX -- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
@@ -44,9 +44,9 @@ except ImportError:
 ### Globals
 swname = "JS8Spotter"
 fromtext = "de KF7MIX"
-displayversion = "3.0.6" # User-facing release version (window title, About, error messages)
-swversion = "1.18"       # Internal DB-compatibility version (only used by the DB version check)
-dbminver = "1.17"        # Oldest DB version still accepted without warning
+displayversion = "3.0.7" # User-facing release version (window title, About, error messages)
+swversion = "1.19"       # Internal DB-compatibility version (only used by the DB version check)
+dbminver = "1.18"        # Oldest DB version still accepted without warning
 
 dbfile = 'js8spotter.db'
 conn = sqlite3.connect(dbfile)
@@ -66,7 +66,7 @@ reported_speed = 0
 speedmod_timeout = 0
 speedmod_oldspeed = 0
 
-speeds = {"0":"Normal", "1":"Fast", "2":"Turbo", "4":"Slow", "8":"Ultra", "16":"Subspace"}
+speeds = {"0":"Normal", "1":"Fast", "2":"JS8 40", "4":"Slow", "8":"JS8 60", "16":"Subspace"}
 wfbandshz = ["3578000","7078000","10130000","14078000","18104000","21078000","24922000","28078000"]
 
 ## Available WAV notification files in program folder
@@ -145,7 +145,7 @@ c.execute("SELECT * FROM setting")
 dbsettings = c.fetchall()
 
 ## Rebuild database settings if any are missing (this INSERT won't overwrite existing values but will add missing ones)
-if len(dbsettings)<27:
+if len(dbsettings)<28:
     svals = "('udp_ip','127.0.0.1'),"
     svals+= "('udp_port','2242'),"
     svals+= "('tcp_ip','127.0.0.1'),"
@@ -172,7 +172,8 @@ if len(dbsettings)<27:
     svals+= "('dbver','0'),"
     svals+= "('statrepgrp',''),"
     svals+= "('exp_def_allow','*'),"
-    svals+= "('view_mode','Last 100')"
+    svals+= "('view_mode','Last 100'),"
+    svals+= "('win_geometry','')"
     c.execute("INSERT INTO setting(name,value) VALUES "+svals)
     conn.commit()
     c.execute("SELECT * FROM setting")
@@ -202,6 +203,7 @@ totals[4]=0 # for autotx
 ## For inter-thread comms
 event = Event()
 speedmod = Event()
+js8close = Event()
 
 ### Thread for processing output of JS8Call over socket
 class TCP_RX(Thread):
@@ -218,7 +220,8 @@ class TCP_RX(Thread):
         if speed==1: wpm,frame=24,10
         if speed==2: wpm,frame=40,6
         if speed==4: wpm,frame=8,30
-        if speed==16: wpm,frame=80,3
+        if speed==8: wpm,frame=60,4
+        if speed==16: wpm,frame=60,4 # "subspace" mode
 
         tts = (words/wpm)*60
         if tts<frame: tts=frame
@@ -251,14 +254,18 @@ class TCP_RX(Thread):
                         except ValueError as error:
                             data_json = {'type':'error'}
 
-                        # For API json print to console debug
+                        # For API json print to console debug (uncomment next two lines)
                         #printable_json_output = json.dumps(data_json, indent=4)
                         #print(printable_json_output)
 
                         if data_json['type']=="MODE.SPEED":
                             # print("REPORTED MODE.SPEED:"+str(data_json))
-                            # API _SPEED setting from expect, 0=normal, 1=fast, 2=turbo, 4=slow, 16=subspace
+                            # API _SPEED setting from expect, 0=normal, 1=fast, 2=JS8 40, 4=slow, 8=JS8 60, 16=Subspace
                             reported_speed = data_json['params']['SPEED']
+
+                        if data_json['type']=="STATION.CLOSING":
+                            closing_reason = data_json['params']['REASON']; # not sure we'll ever use this value, but who knows
+                            js8close.set()
 
                         if data_json['type'] in track_types:
                             # gather basic elements of this record
@@ -266,7 +273,7 @@ class TCP_RX(Thread):
                             msg_dial = data_json['params']['DIAL'] if "DIAL" in data_json['params'] else ""
                             msg_freq = data_json['params']['FREQ'] if "FREQ" in data_json['params'] else ""
                             msg_offset = data_json['params']['OFFSET'] if "OFFSET" in data_json['params'] else ""
-                            msg_speed = data_json['params']['SPEED'] if "SPEED" in data_json['params'] else "" # 0=Normal, 1=Fast, 2=Turbo, 4=Slow (8=Ultra, in src code of js8call but not generally used), 16=Subspace
+                            msg_speed = data_json['params']['SPEED'] if "SPEED" in data_json['params'] else "" # 0=Normal, 1=Fast, 2=JS8 40, 4=Slow, 8=JS8 60, 16=Subspace
                             msg_snr = data_json['params']['SNR'] if "SNR" in data_json['params'] else ""
                             msg_value = data_json['value']
 
@@ -287,22 +294,30 @@ class TCP_RX(Thread):
                             ## Multiple Choice Forms (MCF) subsystem. Check for prefix "F!<form code> <form response> <msg> <datecode>" in any incoming data
                             # add \/?\-?[A-Z0-9]? to callsign detection, for /P and other tactical calls
                             # also captures forms stored as messages on 3rd party systems
+# API output for an MCform (msg) 5/27/26
+#{"params":{"CMD":" MSG","DIAL":7078000,"EXTRA":"","FREQ":7079851,"FROM":"K1YE","GRID":"","OFFSET":1851,"SNR":-18,"SPEED":0,"TDRIFT":0.18000000715255737,"TEXT":"KF7MIX MSG F!101 50333A286  #E0LE ♢ ","TO":"KF7MIX","UTC":1779894536796,"_ID":-1},"type":"RX.DIRECTED","value":"KF7MIX MSG F!101 50333A286  #E0LE ♢ "}
+
 
                             # to test manually set msg_value="AB1CD: KF7MIX  F!101 46333B251  #JUQM"
-                            scan_forms = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?(.*\s+)?(F\![A-Z0-9]+)\s+?([A-Z0-9]+)\s+?(.*?)(\#[A-Z0-9]+)(\ FROM)?(\ [A-Z0-9]+)?",msg_value) # from, to, <optional E? or MSG etc. group not used>, form ID, form responses, msg, timestamp
+
+                            # older versions of the program sent the FROM in the value, newer ones do not
+                            # scan_forms = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?(.*\s+)?(F\![A-Z0-9]+)\s+?([A-Z0-9]+)\s+?(.*?)(\#[A-Z0-9]+)(\ FROM)?(\ [A-Z0-9]+)?",msg_value) # from, to, <optional E? or MSG etc. group not used>, form ID, form responses, msg, timestamp
+                            scan_forms = re.search(r"(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?(.*\s+)?(F\![A-Z0-9]+)\s+?([A-Z0-9]+)\s+?(.*?)(\#[A-Z0-9]+)(\ FROM)?(\ [A-Z0-9]+)?",msg_value) # to, <optional E? or MSG etc. group not used>, form ID, form responses, msg, timestamp
+
                             if scan_forms:
                                 # determine from/to for standard or stored forms
-                                if scan_forms[8]==" FROM":
-                                    form_from = scan_forms[9].strip()
-                                    form_to = scan_forms[2]
+                                if scan_forms[7]==" FROM":
+                                    form_from = scan_forms[8].strip()
+                                    form_to = scan_forms[1]
                                 else:
-                                    form_from = scan_forms[1]
-                                    form_to = scan_forms[2]
+                                    #form_from = scan_forms[1] # deprecated, no longer in API "values"
+                                    form_from = msg_call
+                                    form_to = scan_forms[1]
 
                                 # forward to gateway if user has one configured
                                 rstat=""
                                 if settings['forms_gateway']!='':
-                                    formobj = {'fromcall':form_from, 'tocall':form_to, 'typeid':scan_forms[4], 'responses':scan_forms[5], 'msgtxt':scan_forms[6], 'timesig':scan_forms[7]}
+                                    formobj = {'fromcall':form_from, 'tocall':form_to, 'typeid':scan_forms[3], 'responses':scan_forms[4], 'msgtxt':scan_forms[5], 'timesig':scan_forms[6]}
                                     try:
                                         rstat = requests.post(settings['forms_gateway'], data = formobj)
                                     except requests.exceptions.RequestException as e:
@@ -310,16 +325,17 @@ class TCP_RX(Thread):
 
                                 # found a form in the stream, save it. No need for it to be directed to us, we want to save all forms we find.
                                 sql = "INSERT INTO forms(fromcall,tocall,typeid,responses,msgtxt,timesig,lm,gwtx) VALUES (?,?,?,?,?,?, CURRENT_TIMESTAMP,?)"
-                                c1.execute(sql, [form_from,form_to,scan_forms[4],scan_forms[5],scan_forms[6],scan_forms[7],str(rstat)])
+                                c1.execute(sql, [form_from,form_to,scan_forms[3],scan_forms[4],scan_forms[5],scan_forms[6],str(rstat)])
                                 conn1.commit()
                                 event.set()
 
-                            scan_formsrelay = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(@?[A-Z0-9>]+)\/?\-?[A-Z0-9]?\s+?(.*\s+)?(F\![A-Z0-9]+)\s+?([A-Z0-9]+)\s+?(.*?)(\#[A-Z0-9]+)\s+?\*DE\*\s+?([A-Z0-9]+)\/?\-?[A-Z0-9]?",msg_value)
+                            # removed FROM in values
+                            scan_formsrelay = re.search(r"(@?[A-Z0-9>]+)\/?\-?[A-Z0-9]?\s+?(.*\s+)?(F\![A-Z0-9]+)\s+?([A-Z0-9]+)\s+?(.*?)(\#[A-Z0-9]+)\s+?\*DE\*\s+?([A-Z0-9]+)\/?\-?[A-Z0-9]?",msg_value)
                             if scan_formsrelay:
                                 # forward to gateway if user has one configured
                                 rstat=""
                                 if settings['forms_gateway']!='':
-                                    formobj = {'fromcall':scan_formsrelay[8], 'tocall':scan_formsrelay[2], 'typeid':scan_formsrelay[4], 'responses':scan_formsrelay[5], 'msgtxt':scan_formsrelay[6], 'timesig':scan_formsrelay[7]}
+                                    formobj = {'fromcall':scan_formsrelay[7], 'tocall':scan_formsrelay[1], 'typeid':scan_formsrelay[3], 'responses':scan_formsrelay[4], 'msgtxt':scan_formsrelay[5], 'timesig':scan_formsrelay[6]}
                                     try:
                                         rstat = requests.post(settings['forms_gateway'], data = formobj)
                                     except requests.exceptions.RequestException as e:
@@ -327,7 +343,7 @@ class TCP_RX(Thread):
 
                                 # found a relayed form, save it. Doesn't matter who it is to/from, we want to save all forms we find.
                                 sql = "INSERT INTO forms(fromcall,tocall,typeid,responses,msgtxt,timesig,lm,gwtx) VALUES (?,?,?,?,?,?, CURRENT_TIMESTAMP,?)"
-                                c1.execute(sql, [scan_formsrelay[8],scan_formsrelay[2],scan_formsrelay[4],scan_formsrelay[5],scan_formsrelay[6],scan_formsrelay[7],str(rstat)])
+                                c1.execute(sql, [scan_formsrelay[7],scan_formsrelay[1],scan_formsrelay[3],scan_formsrelay[4],scan_formsrelay[5],scan_formsrelay[6],str(rstat)])
                                 conn1.commit()
                                 event.set()
 
@@ -339,19 +355,25 @@ class TCP_RX(Thread):
 
                             # scan for direct request expect
                             # to test manually set msg_value="AB1CD: KF7MIX  E? TEST"
-                            scan_expect = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?E\?\s+?([A-Z0-9!]+)",msg_value) # from, to, expect
+
+                            # removed FROM in values
+                            # scan_expect = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?E\?\s+?([A-Z0-9!]+)",msg_value) # from, to, expect
+                            scan_expect = re.search(r"(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?E\?\s+?([A-Z0-9!]+)",msg_value) # to, expect
                             if scan_expect:
-                                ex_from = scan_expect.group(1)
-                                ex_to = scan_expect.group(2)
-                                ex_expect = scan_expect.group(3)
+                                # ex_from = scan_expect.group(1)
+                                ex_from = msg_call
+                                ex_to = scan_expect.group(1)
+                                ex_expect = scan_expect.group(2)
                             else:
                                 # scan for relayed request expect
-                                scan_expect = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?([A-Z0-9]+)\/?\-?[A-Z0-9]?\>?\s+?E\?\s+?([A-Z0-9!]+)\s+?\*DE\*?\s+?([A-Z0-9]+)\/?\-?[A-Z0-9]?",msg_value) # relay, to, expect, from
+                                # removed FROM in values
+                                scan_expect = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?\>?\s+?E\?\s+?([A-Z0-9!]+)\s+?\*DE\*?\s+?([A-Z0-9]+)\/?\-?[A-Z0-9]?",msg_value) # to, expect, from
                                 if scan_expect:
-                                    ex_relay = scan_expect.group(1)
-                                    ex_to = scan_expect.group(2)
-                                    ex_expect = scan_expect.group(3)
-                                    ex_from = scan_expect.group(4)
+#                                    ex_relay = scan_expect.group(1)
+                                    ex_relay = msg_call
+                                    ex_to = scan_expect.group(1)
+                                    ex_expect = scan_expect.group(2)
+                                    ex_from = scan_expect.group(3)
 
                             if ex_expect and settings['callsign']!="FILL" and settings['pause_expect']=="0":
                                 # check if expect is in database
@@ -384,16 +406,20 @@ class TCP_RX(Thread):
                                                 ex_reply = settings['callsign']+": "+reply_to+" "+ex_exists[1]
 
                                             # API _SPEED setting from expect, store old setting, and set new JS8Call TX speed/mode with API call
-                                            # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=turbo, 4=slow, 16=subspace
+                                            # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=JS8 40, 4=slow, 8=JS8 60, 16=Subspace
                                             # "Current" / None means leave JS8Call's current speed alone (don't send SET_SPEED)
                                             if ex_exists[6] not in (None, "Current"):
                                                 old_speed = reported_speed
                                                 new_speed = 0
-                                                if ex_exists[6]=="Normal":   new_speed=0
-                                                if ex_exists[6]=="Fast":     new_speed=1
-                                                if ex_exists[6]=="Turbo":    new_speed=2
-                                                if ex_exists[6]=="Slow":     new_speed=4
-                                                if ex_exists[6]=="Subspace": new_speed=16
+                                                if ex_exists[6]=="Normal": new_speed=0
+                                                if ex_exists[6]=="Fast":   new_speed=1
+                                                if ex_exists[6]=="JS8 40":  new_speed=2
+                                                if ex_exists[6]=="Slow":   new_speed=4
+
+                                                if ex_exists[6]=="JS8 60":   new_speed=8
+                                                if ex_exists[6]=="Subspace":   new_speed=16
+
+
                                                 tx_content = json.dumps({"params":{"SPEED":new_speed},"type":"MODE.SET_SPEED"})
                                                 self.sock.send(bytes(tx_content + '\n','utf-8'))
                                                 time.sleep(0.25)
@@ -403,6 +429,11 @@ class TCP_RX(Thread):
                                                 speedmod_timeout = int(self.get_tx_time(new_speed,sent_words))
                                                 speedmod_oldspeed = old_speed
                                                 speedmod.set()
+
+                                            # make sure the message pane is empty
+                                            tx_content = json.dumps({"params":{},"type":"TX.SET_TEXT","value":""})
+                                            self.sock.send(bytes(tx_content + '\n','utf-8'))
+                                            time.sleep(0.33)
 
                                             # send to JS8Call API
                                             tx_content = json.dumps({"params":{},"type":"TX.SEND_MESSAGE","value":ex_reply})
@@ -427,20 +458,26 @@ class TCP_RX(Thread):
                             ## Based on specs from v1.0.5 (but using no code), see: https://github.com/W5DMH/commstatone
                             if settings['statrepgrp']!="":
                                 # capture direct statrep
-                                scan_statrep = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(.*?),(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,\{\&\%\}",msg_value) # example: KF7MIX: @AMRRON  ,EM48,1,501,111111111111,Test,{&%}
+
+                                # FROM no longer in "values" in API
+                                # scan_statrep = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(.*?),(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,\{\&\%\}",msg_value) # example: KF7MIX: @AMRRON  ,EM48,1,501,111111111111,Test,{&%}
+                                scan_statrep = re.search(r"(.*?),(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,\{\&\%\}",msg_value) # example: KF7MIX: @AMRRON  ,EM48,1,501,111111111111,Test,{&%}
+
                                 if scan_statrep:
-                                    if (scan_statrep[2].strip() == settings['statrepgrp']) or (settings['statrepgrp']=="*"):
+                                    if (scan_statrep[1].strip() == settings['statrepgrp']) or (settings['statrepgrp']=="*"):
                                         sql = "INSERT INTO csstatrep(cssr_from,cssr_group,cssr_grid,cssr_prio,cssr_msgid,cssr_status,cssr_notes,cssr_timestamp) VALUES (?,?,?,?,?,?,?, CURRENT_TIMESTAMP)"
-                                        c1.execute(sql, [scan_statrep[1],scan_statrep[2].strip(),scan_statrep[3],scan_statrep[4],scan_statrep[5],scan_statrep[6],scan_statrep[7]])
+                                        c1.execute(sql, [msg_call,scan_statrep[1].strip(),scan_statrep[2],scan_statrep[3],scan_statrep[4],scan_statrep[5],scan_statrep[6]])
                                         conn1.commit()
                                         event.set()
 
                                 # capture forwarded statrep
-                                scan_statrepfw = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(.*?),(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,\{F\%\}",msg_value) # example: AB1CD: @TST11  ,EM48,1,959,111111111111,NTR,KF7MIX,{F%}
+                                # FROM no longer in "values" in API
+                                # scan_statrepfw = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(.*?),(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,\{F\%\}",msg_value) # example: AB1CD: @TST11  ,EM48,1,959,111111111111,NTR,KF7MIX,{F%}
+                                scan_statrepfw = re.search(r"(.*?),(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,(.*?)\,\{F\%\}",msg_value) # example: AB1CD: @TST11  ,EM48,1,959,111111111111,NTR,KF7MIX,{F%}
                                 if scan_statrepfw:
-                                    if (scan_statrepfw[2].strip() == settings['statrepgrp']) or (settings['statrepgrp']=="*"):
+                                    if (scan_statrepfw[1].strip() == settings['statrepgrp']) or (settings['statrepgrp']=="*"):
                                         sql = "INSERT INTO csstatrep(cssr_from,cssr_group,cssr_grid,cssr_prio,cssr_msgid,cssr_status,cssr_notes,cssr_timestamp) VALUES (?,?,?,?,?,?,?, CURRENT_TIMESTAMP)"
-                                        c1.execute(sql, [scan_statrepfw[8],scan_statrepfw[2].strip(),scan_statrepfw[3],scan_statrepfw[4],scan_statrepfw[5],scan_statrepfw[6],scan_statrepfw[7]])
+                                        c1.execute(sql, [scan_statrepfw[7],scan_statrepfw[1].strip(),scan_statrepfw[2],scan_statrepfw[3],scan_statrepfw[4],scan_statrepfw[5],scan_statrepfw[6]])
                                         conn1.commit()
                                         event.set()
 
@@ -478,7 +515,8 @@ class TCP_RX(Thread):
 ### Main program thread
 class App(tk.Tk):
     def __init__(self, sock):
-        super().__init__()
+        #super().__init__()
+        super().__init__(baseName="JS8Spotter", className="JS8Spotter")
         self.sock = sock
         self.sender = None
         self.receiver = None
@@ -487,7 +525,10 @@ class App(tk.Tk):
         self.style = Style()
         self.call("source", "azure.tcl")
         self.create_gui()
-        self.eval('tk::PlaceWindow . center')
+
+        if not settings.get('win_geometry'):
+            self.eval('tk::PlaceWindow . center')
+
         self.activate_theme()
 
         self.build_profilemenu()
@@ -539,7 +580,17 @@ class App(tk.Tk):
     ## Setup main gui window
     def create_gui(self):
         self.title(swname+" "+fromtext+" (v"+displayversion+")")
-        self.geometry('950x450')
+
+        try:
+            self._spot_icon = ImageTk.PhotoImage(Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "js8spotter.ico")))
+            self.iconphoto(True, self._spot_icon)
+        except Exception:
+            try:
+                self.iconbitmap(os.path.join(os.path.dirname(os.path.abspath(__file__)), "js8spotter.ico"))
+            except Exception:
+                pass
+
+        self.geometry(settings.get('win_geometry') or '950x450')
         self.minsize(950,450)
         self.resizable(width=True, height=True)
 
@@ -1147,11 +1198,12 @@ class App(tk.Tk):
 
                 # highlight if within selected highlight range
                 if isinstance(record[3], str):
-
+#                    recdelta = datetime.datetime.utcnow() - datetime.datetime.strptime(record[3], "%Y-%m-%d %H:%M:%S") # utcnow deprecated
                     recdelta = datetime.datetime.now() - datetime.datetime.strptime(record[3], '%Y-%m-%d %H:%M:%S')
-#                    recdelta = datetime.datetime.utcnow() - datetime.datetime.strptime(record[3], "%Y-%m-%d %H:%M:%S")
                     rdmin = int(recdelta.total_seconds() / 60)
-                    if rdmin < int(settings['highlight_new']):
+
+                    if rdmin < int(settings['highlight_new']) and int(settings['highlight_new'])>0:
+
                         if count % 2 == 1:
                             self.keywords.item(record[0], tags="hlorow")
                         else:
@@ -2139,7 +2191,8 @@ class App(tk.Tk):
                     if snrval > 5:  fcolor = mappal[0]
                     self.top.canvas.create_oval(pxcoordX,pxcoordY,pxcoordX+marker_size,pxcoordY+marker_size, fill=fcolor, outline='black')
                 else:
-                    recdelta = datetime.datetime.utcnow() - datetime.datetime.strptime(record[5], "%Y-%m-%d %H:%M:%S")
+#                    recdelta = datetime.datetime.utcnow() - datetime.datetime.strptime(record[5], "%Y-%m-%d %H:%M:%S") # depricated utcnow
+                    recdelta = datetime.datetime.now(datetime.UTC) - datetime.datetime.strptime(record[5], "%Y-%m-%d %H:%M:%S").replace(tzinfo=datetime.UTC)
                     rechrs = int(recdelta.total_seconds() / 60 / 60)
 
                     fcolor = mappal[7]
@@ -2487,7 +2540,7 @@ class App(tk.Tk):
                     w=35
                     h=22
                     sy=90
-                if record[5]=="2": # turbo mode
+                if record[5]=="2": # JS8 40 mode
                     w=70
                     h=11
                     sy=145
@@ -2967,7 +3020,7 @@ class App(tk.Tk):
         self.top2.entry_txmax = ttk.Entry(el, width = '8')
         self.top2.entry_txmax.grid(row=3, column=1, sticky='NW', padx=(8,0), pady=(8,0))
 
-        speedopts = ["Current", "Slow", "Normal", "Fast", "Turbo", "Subspace"]
+        speedopts = ["Current", "Slow", "Normal", "Fast", "JS8 40", "JS8 60", "Subspace"]
         label_speed = ttk.Label(el, text = "TX Speed:")
         label_speed.grid(row = 4, column = 0, sticky=W, padx=(8,0), pady=(8,0))
         self.top2.entry_speed = ttk.Combobox(el, values=speedopts, state='readonly', width='16')
@@ -3112,7 +3165,6 @@ class App(tk.Tk):
 #        c.execute(sql, [new_expect[0:6],new_reply,new_allowed,new_txmax,old_txlist,new_txspeed,new_autotx])
         sql = "INSERT INTO expect(expect,reply,allowed,txmax,txlist,lm,txspeed,autotx,atxtarget) VALUES (?,?,?,?,?, CURRENT_TIMESTAMP,?,?,?)"
         c.execute(sql, [new_expect[0:6],new_reply,new_allowed,new_txmax,old_txlist,new_txspeed,new_autotx,new_atx_target])
-
         conn.commit()
 
         self.get_expects()
@@ -3251,15 +3303,17 @@ class App(tk.Tk):
         new_cmd = self.tx_cmd.get()
         if new_cmd == "": return
 
-        # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=turbo, 4=slow, 16=subspace
+        # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=JS8 40, 4=slow, 8=JS8 60, 16=Subspace
         if self.tx_speed!=None:
             old_speed = reported_speed
             new_speed = 0
-            if self.tx_speed=="Normal":   new_speed=0
-            if self.tx_speed=="Fast":     new_speed=1
-            if self.tx_speed=="Turbo":    new_speed=2
-            if self.tx_speed=="Slow":     new_speed=4
-            if self.tx_speed=="Subspace": new_speed=16
+            if self.tx_speed=="Normal": new_speed=0
+            if self.tx_speed=="Fast":   new_speed=1
+            if self.tx_speed=="JS8 40":  new_speed=2
+            if self.tx_speed=="Slow":   new_speed=4
+            if self.tx_speed=="JS8 60":  new_speed=8
+            if self.tx_speed=="Subspace":   new_speed=16
+
             tx_content = json.dumps({"params":{"SPEED":new_speed},"type":"MODE.SET_SPEED"})
             self.sock.send(bytes(tx_content + '\n','utf-8'))
             time.sleep(0.25)
@@ -3268,6 +3322,11 @@ class App(tk.Tk):
             sent_words = len(new_cmd.split())
             speed_reset_delay = self.get_tx_time(new_speed,sent_words)
             super().after(int(speed_reset_delay*1000),self.reset_speed,old_speed)
+
+        # make sure the message pane is empty
+        tx_content = json.dumps({"params":{},"type":"TX.SET_TEXT","value":""})
+        self.sock.send(bytes(tx_content + '\n','utf-8'))
+        time.sleep(0.33)
 
         tx_content = json.dumps({"params":{},"type":"TX.SEND_MESSAGE","value":new_cmd})
         self.sock.send(bytes(tx_content + '\n','utf-8'))
@@ -3454,6 +3513,12 @@ class App(tk.Tk):
     def proc_fwresp(self):
         new_cmd = self.tx_cmd.get()
         if new_cmd == "": return
+
+        # make sure the message pane is empty
+        tx_content = json.dumps({"params":{},"type":"TX.SET_TEXT","value":""})
+        self.sock.send(bytes(tx_content + '\n','utf-8'))
+        time.sleep(0.33)
+
         tx_content = json.dumps({"params":{},"type":"TX.SEND_MESSAGE","value":new_cmd})
         self.sock.send(bytes(tx_content + '\n','utf-8'))
         self.top2.destroy()
@@ -4085,6 +4150,7 @@ class App(tk.Tk):
             if answer2:
                 self.tx_expect()
 
+            self.get_expects()
             self.top3.destroy()
 
     ## Build reports sub-menu from database
@@ -4760,6 +4826,12 @@ class App(tk.Tk):
     def proc_commstat(self):
         new_cmd = self.cs_cmd.get()
         if new_cmd == "": return
+
+        # make sure the message pane is empty
+        tx_content = json.dumps({"params":{},"type":"TX.SET_TEXT","value":""})
+        self.sock.send(bytes(tx_content + '\n','utf-8'))
+        time.sleep(0.33)
+
         tx_content = json.dumps({"params":{},"type":"TX.SEND_MESSAGE","value":new_cmd})
         self.sock.send(bytes(tx_content + '\n','utf-8'))
         self.top.destroy()
@@ -5072,6 +5144,12 @@ class App(tk.Tk):
     def proc_aprscmd(self):
         new_cmd = self.sms_cmd.get()
         if new_cmd == "": return
+
+        # make sure the message pane is empty
+        tx_content = json.dumps({"params":{},"type":"TX.SET_TEXT","value":""})
+        self.sock.send(bytes(tx_content + '\n','utf-8'))
+        time.sleep(0.33)
+
         tx_content = json.dumps({"params":{},"type":"TX.SEND_MESSAGE","value":new_cmd})
         self.sock.send(bytes(tx_content + '\n','utf-8'))
         self.top.destroy()
@@ -5108,6 +5186,11 @@ class App(tk.Tk):
         self.top = Toplevel(self)
         self.top.title("Edit Settings")
         self.top.resizable(width=False, height=False)
+
+        # dropping this here... test an API call when opening the settings dialog, for TESTING only of course
+        #tx_content = json.dumps({"params":{},"type":"TX.SET_TEXT","value":""})
+        #self.sock.send(bytes(tx_content + '\n','utf-8'))
+        #time.sleep(0.25)
 
         label_instruct = ttk.Label(self.top, text = "Please check that these settings match in JS8Call.")
         label_instruct.grid(row = 0, columnspan = 2, padx=(10,10), pady=(20,0))
@@ -5262,7 +5345,9 @@ class App(tk.Tk):
             if isinstance(item, int):
                 if int(item) in search_dict:
                     if isinstance(search_dict[int(item)][2],str):
-                        recdelta = datetime.datetime.utcnow() - datetime.datetime.strptime(search_dict[int(item)][2], "%Y-%m-%d %H:%M:%S")
+#                        recdelta = datetime.datetime.utcnow() - datetime.datetime.strptime(search_dict[int(item)][2], "%Y-%m-%d %H:%M:%S") # depricated utcnow
+                        recdelta = datetime.datetime.now(datetime.UTC) - datetime.datetime.strptime(search_dict[int(item)][2], "%Y-%m-%d %H:%M:%S").replace(tzinfo=datetime.UTC)
+
                         rdmin = int(recdelta.total_seconds() / 60)
                         if rdmin < int(settings['highlight_new']):
                             if count % 2 == 1:
@@ -5434,6 +5519,11 @@ class App(tk.Tk):
     def poll_activity(self):
         global last_auto_tx
 
+        # Check if JS8Call was closed, inform the user
+        if js8close.is_set():
+            messagebox.showinfo("JS8Call Was Closed","The JS8Call application was closed. Please restart JS8Spotter after you restart JS8Call.")
+            self.menu_bye()
+
         # update status if event is set by TCP_RX thread
         if event.is_set():
             self.refresh_activity_tree()
@@ -5460,17 +5550,18 @@ class App(tk.Tk):
                     to_send = str(atx_expect[0][8])+" "+str(atx_expect[0][1])
                     atx_speed = atx_expect[0][6]
 
-                    # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=turbo, 4=slow, 16=subspace
+                    # MODE.GET_SPEED / MODE.SET_SPEED, 0=normal, 1=fast, 2=JS8 40, 4=slow, 8=JS8 60, 16=Subspace
                     # "Current" / None means leave JS8Call's current speed alone (don't send SET_SPEED)
                     if atx_speed not in (None, "Current"):
                         old_speed = reported_speed
                         new_speed = 0
 
-                        if atx_speed=="Normal":   new_speed=0
-                        if atx_speed=="Fast":     new_speed=1
-                        if atx_speed=="Turbo":    new_speed=2
-                        if atx_speed=="Slow":     new_speed=4
-                        if atx_speed=="Subspace": new_speed=16
+                        if atx_speed=="Normal": new_speed=0
+                        if atx_speed=="Fast":   new_speed=1
+                        if atx_speed=="JS8 40":  new_speed=2
+                        if atx_speed=="Slow":   new_speed=4
+                        if atx_speed=="JS8 60":  new_speed=8
+                        if atx_speed=="Subspace":   new_speed=16
 
                         tx_content = json.dumps({"params":{"SPEED":new_speed},"type":"MODE.SET_SPEED"})
                         self.sock.send(bytes(tx_content + '\n','utf-8'))
@@ -5480,6 +5571,11 @@ class App(tk.Tk):
                         sent_words = len(to_send.split())
                         speed_reset_delay = self.get_tx_time(new_speed,sent_words)
                         super().after(int(speed_reset_delay*1000),self.reset_speed,old_speed)
+
+                    # make sure the message pane is empty
+                    tx_content = json.dumps({"params":{},"type":"TX.SET_TEXT","value":""})
+                    self.sock.send(bytes(tx_content + '\n','utf-8'))
+                    time.sleep(0.33)
 
                     tx_content = json.dumps({"params":{},"type":"TX.SEND_MESSAGE","value":to_send})
                     self.sock.send(bytes(tx_content + '\n','utf-8'))
@@ -5518,7 +5614,8 @@ class App(tk.Tk):
         if speed==1: wpm,frame=24,10
         if speed==2: wpm,frame=40,6
         if speed==4: wpm,frame=8,30
-        if speed==16: wpm,frame=80,3
+        if speed==8: wpm,frame=60,4
+        if speed==16: wpm,frame=60,4
 
         tts = (words/wpm)*60
         if tts<frame: tts=frame
@@ -5552,6 +5649,8 @@ class App(tk.Tk):
 
     ## Quit function, close the recv thread, database connection, and main gui window
     def menu_bye(self):
+        c.execute("UPDATE setting SET value = ? WHERE name = 'win_geometry'", [self.geometry()])
+        conn.commit()
         conn.close()
         self.stop_receiving()
         self.destroy()
@@ -5569,6 +5668,8 @@ def main():
         sock = None # we'll provide the connection error message after the gui loads
     except TimeoutError:
         sock = None # we'll provide the connection error message after the gui loads
+    except OSError:
+        sock = None
 
     # start the application
     app = App(sock)

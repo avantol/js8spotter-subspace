@@ -3,7 +3,7 @@
 # For keeping your JS8Spotter database up-to-date with new JS8Spotter releases. Checks/corrects existing tables have all columns, and all tables are present.
 # Version of this program matches JS8Spotter program it was distributed with.
 #
-# MIT License, Copyright 2025 Joseph D Lyman KF7MIX --- Permission is hereby granted,  free of charge, to any person obtaining a copy of this software and associated documentation files
+# MIT License, Copyright 2026 Joseph D Lyman KF7MIX --- Permission is hereby granted,  free of charge, to any person obtaining a copy of this software and associated documentation files
 # (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.  The Software IS PROVIDED "AS IS",  WITHOUT WARRANTY OF ANY KIND,  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE

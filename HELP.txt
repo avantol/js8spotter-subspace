@@ -85,6 +85,15 @@ JS8Spotter Quick Help
     * MCForms filled-out forms are posted as expect entries
     * The Expect system may be paused, and a blocklist is available
 
+    In order to automatically transmit from Expect, the following MUST be true:
+
+    * You must DISABLE/UNCHECK the "Allow sending standard messages without callsign" option in 
+      JS8Call settings "General>Behavior" tab, or "E?" requests will not function.
+    * Autoreply must be enabled in JS8Call in order for JS8Spotter to cause JS8Call to transmit.
+    * You must have no station selected in your JS8Call Call Activity Pane
+    * TX must be enabled
+    * Your outgoing message box must be empty (gray text "TYPE YOUR OUTGOING MESSAGES HERE"
+
 ## MCForms Subsystem
 
     The MCForms system adds basic multiple choice forms functionality to JS8Call. Please
@@ -101,6 +110,16 @@ JS8Spotter Quick Help
     * Send an email
     * Report your grid location to the APRS network
     * Submit to the POTA Gateway
+
+    In order to automatically transmit APRS commands, the following MUST be true:
+
+    * You must DISABLE/UNCHECK the "Allow sending standard messages without callsign" option in 
+      JS8Call settings "General>Behavior" tab, or "E?" requests will not function.
+    * Autoreply must be enabled in JS8Call in order for JS8Spotter to cause JS8Call to transmit.
+    * You must have no station selected in your JS8Call Call Activity Pane
+    * TX must be enabled
+    * Your outgoing message box must be empty (gray text "TYPE YOUR OUTGOING MESSAGES HERE"
+
 
 ## CommStat Compatible Features
 

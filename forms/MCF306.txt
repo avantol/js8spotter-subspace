@@ -18,7 +18,6 @@ Power Stability Report|F!306
 @5 Power system unreliable - multiple power failures of any length
 @6 Rolling brownouts, planned and announced
 
-
 ? Grid down capabilities at your station:
 @1 Battery capacity for at least 24hrs of continuous low-duty-cycle operating time, solar or generator charging available
 @2 Battery capacity for at least 48hrs of continuous low-duty-cycle operating time, solar or generator charging available

@@ -1,9 +1,20 @@
 # JS8Spotter, MIT License, Joe Lyman KF7MIX
 # You should have received a copy of the source and license with this application
 
-# Change Log (latest first)
-# Changelog for v1.18
+# Change log (latest first) for v1.19
 
+2026-05-27    v1.19     DB structure unchanged, DB updated not needed from 1.17 or 1.18
+                        Fixed a bug where you couldn't disable highlights  (Billy N4WXI)
+                        Added API call to clear message pane before all TX commands
+                        Fix for window naming and grouping (Scott, W8UFO)
+                        Fixed a bug where auto_tx variable wasn't updating after updating a form
+                        Added window title bar icon (Stephen KN4AM)
+                        Program now restores your previous window size (Stephen KN4AM)
+                        Added a script by Stephen for setting up a desktop icon (Stephen KN4AM)
+                        Added support for Subspace and Ultra modes in the interface (Andy WM8Q)
+                        Added support for new API shutdown call (warn use JS8Call was closed)
+                        Updated speeds to match new v3.0.2 selections
+                        Fixed regex bugs that caused many functions not to work in v3.x.x (Billy N4WXI and Phil K1YE)
 2026-01-29    v1.18     DB structure unchanged, DB updated not needed from 1.17
                         Added click on status bar to clear all notification messages
                         Added Export Simple Offline Maps data (W8JB, Jim)
@@ -28,7 +39,7 @@
                         Redesigned Expect system screens
                         Added Auto TX schedule to Expect (multiple)
                         Added components to set TX speed, but not supported by functional API at this time (2.3.1)
-			Added new F!107 form and updated quickstart docs (KN4AM)
+			            Added new F!107 form and updated quickstart docs (KN4AM)
 2025-04-25    v1.16     DB structure *changed*, DB updated REQUIRED
                         Fixed scrollwheel binding bug in forms
                         Fixed extra space bug in some form fill-outs

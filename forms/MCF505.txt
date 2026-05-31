@@ -1,18 +1,18 @@
 Area Assessment|F!505
 
-. Version: 10/20/2025 - @SITREP
+. Version: 05/28/2026 - @SITREP
 
 # Form published 01/19/2025. See SitRepNet.com for details and supporting docs for this form. KN4AM
-# Revised 03/07/2025, 10/20/2025
+# Revised 03/07/2025, 10/20/2025, 05/28/2026
 
 ! Area Assessment
 
 . 
 . 
 
-[ST] State (2-letter code):
-[GR] Maidenhead Grid Square:
-[CT] City or County:
+[GR] Maidenhead Grid Square (REQUIRED):
+[ST] State (2-letter code - optional):
+[CT] City or County (optional):
 
 . 
 . 
@@ -242,4 +242,5 @@ Area Assessment|F!505
 @0 Gangs, local warlords, foreign military
 
 . ______________________________________________________________________
-. FORM COMMENT NOTE: Enter F! number(s) and/or "ALERT" if appropriate, or further info, or leave blank if nothing additional to report.
+. FORM COMMENT NOTE: Enter F! number(s) and/or "ALERT" if appropriate. Leave blank unless needed.
+. Designed for use with JS8Reporter for map display.

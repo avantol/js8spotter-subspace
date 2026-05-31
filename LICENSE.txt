@@ -2,12 +2,12 @@
 #
 # A JS8Call API mechanism to keep track of activity containing specific search
 # terms, including callsigns or other activity. Matches on RX.ACTIVITY,
-# RX.DIRECTED, and RX.SPOT only. Tested with JS8Call v2.2.0 through v2.3.1
+# RX.DIRECTED, and RX.SPOT only. Tested with JS8Call v2.2.0 through v3.0.2
 #
 # Enable TCP API in JS8Call. File>Settings>Reporting, checkmark on Allow setting
 # station information, Enable TCP Server API, Accept TCP Requests.
 #
-# MIT License, Copyright 2025 Joseph D Lyman KF7MIX
+# MIT License, Copyright 2026 Joseph D Lyman KF7MIX
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -40,5 +40,5 @@
 #
 # This fork (js8spotter-subspace) is published under the same MIT License
 # terms as the upstream JS8Spotter. Modifications include a "Subspace"
-# mode-speed (TCP API code 16) and a "Current" option in the TX Speed
-# dropdown that omits MODE.SET_SPEED from the API call.
+# mode-speed waterfall lane (TCP API code 16) and a "Current" option in the
+# TX Speed dropdown that omits MODE.SET_SPEED from the API call.

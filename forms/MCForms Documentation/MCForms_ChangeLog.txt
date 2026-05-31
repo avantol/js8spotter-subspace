@@ -1,6 +1,21 @@
 MCForms Change Log
 
-1/29/26 - KN4AM, KF7MIX
+02/20/2026 - KN4AM
+F!504	Changed "Average Wind" description to "Current Wind Speed at Observation Time", Added item codes
+
+02/17/26 - KN4AM, KF7MIX
+SitRepNet.com is now the primary MCForms Repository
+
+02/16/26 - KN4AM
+F!504	Changed Observation Time to UTC (was Local time)
+
+02/09/26 - KN4AM
+F!504	Added Relative Humidity
+
+02/08/26 - KN4AM
+F!504	Released
+
+01/29/26 - KN4AM, KF7MIX
 F!108   Added
 F!300   Updated
 F!304   Updated
