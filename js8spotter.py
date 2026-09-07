@@ -44,7 +44,7 @@ except ImportError:
 ### Globals
 swname = "JS8Spotter"
 fromtext = "de KF7MIX"
-displayversion = "3.0.8" # User-facing release version (window title, About, error messages)
+displayversion = "3.0.8.1" # User-facing release version (window title, About, error messages)
 swversion = "1.19"       # Internal DB-compatibility version (only used by the DB version check)
 dbminver = "1.17"        # Oldest DB version still accepted without warning (matches upstream v1.19)
 
@@ -353,27 +353,32 @@ class TCP_RX(Thread):
                             ex_expect = ""
                             ex_relay = ""
 
-                            # scan for direct request expect
-                            # to test manually set msg_value="AB1CD: KF7MIX  E? TEST"
-
-                            # removed FROM in values
-                            # scan_expect = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?:\s+?(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?E\?\s+?([A-Z0-9!]+)",msg_value) # from, to, expect
-                            scan_expect = re.search(r"(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?E\?\s+?([A-Z0-9!]+)",msg_value) # to, expect
-                            if scan_expect:
-                                # ex_from = scan_expect.group(1)
-                                ex_from = msg_call
-                                ex_to = scan_expect.group(1)
-                                ex_expect = scan_expect.group(2)
-                            else:
-                                # scan for relayed request expect
-                                # removed FROM in values
+                            # [v3.0.8.1 relay fix, WM8Q 2026-09-07] Classify
+                            # by the *DE* marker BEFORE pattern matching. The
+                            # direct pattern also matches relayed text
+                            # ("TO E? KEY" sits inside "TO E? KEY *DE* REQ")
+                            # and was tried first, so every relayed pull was
+                            # answered as a DIRECT one: no relay delay, reply
+                            # addressed to the transmitting hop (params FROM)
+                            # with no ">" forward instruction -- the true
+                            # requester never received it. Bench-proven on
+                            # air 2026-09-07 (WM8Q/K9AVT).
+                            if "*DE*" in msg_value:
+                                # relayed request expect
                                 scan_expect = re.search(r"([A-Z0-9]+)\/?\-?[A-Z0-9]?\>?\s+?E\?\s+?([A-Z0-9!]+)\s+?\*DE\*?\s+?([A-Z0-9]+)\/?\-?[A-Z0-9]?",msg_value) # to, expect, from
                                 if scan_expect:
-#                                    ex_relay = scan_expect.group(1)
                                     ex_relay = msg_call
                                     ex_to = scan_expect.group(1)
                                     ex_expect = scan_expect.group(2)
                                     ex_from = scan_expect.group(3)
+                            else:
+                                # scan for direct request expect
+                                # to test manually set msg_value="AB1CD: KF7MIX  E? TEST"
+                                scan_expect = re.search(r"(@?[A-Z0-9]+)\/?\-?[A-Z0-9]?\s+?E\?\s+?([A-Z0-9!]+)",msg_value) # to, expect
+                                if scan_expect:
+                                    ex_from = msg_call
+                                    ex_to = scan_expect.group(1)
+                                    ex_expect = scan_expect.group(2)
 
                             if ex_expect and settings['callsign']!="FILL" and settings['pause_expect']=="0":
                                 # check if expect is in database
